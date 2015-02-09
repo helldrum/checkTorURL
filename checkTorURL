@@ -1,0 +1,81 @@
+#!/bin/bash
+
+#set -x #uncomment to unable debug mode
+
+function testArg {
+    local readonly usage="usage : checkTorURL inputlinkFile"
+    
+    if [[ $# != 1 ]]
+    then
+        echo "ERROR : with the number of arguments"
+        echo "$usage"
+        exit -1
+    fi
+    
+    if [[ ! -f $1 ]]
+    then
+        echo "ERROR : input File $1 doesn't exist."
+        echo "$usage"
+         exit -1
+    fi
+    
+
+}
+
+function readFileLineByLine {
+    local readonly inputFile="$1"
+
+    while  read line
+    do
+        testURL "$line"
+    done < $inputFile
+}
+# remove error or default pages
+function removeErrorPages {
+    siteAvailable=1
+    tabError=("404" "Welcome to nginx" "It works" "Alert")
+    local readonly URL="$1"
+    local message=$(usewithtor curl _-m10 $URL 2> /dev/null)
+
+    for error in "${tabError[@]}"
+    do
+	if [ ! -z "$(echo "$message" | grep -Eo "$error" )" ]; then
+            siteAvailable=0
+        fi
+    done
+    
+    if [ $siteAvailable -eq 0 ]; then
+        echo $line >> urlOffline
+        echo "$URL invalide"
+    else
+        echo $line >> urlOnline
+        echo "$URL valide"
+    fi
+
+}
+function testURL {
+#extract .onion line
+    local readonly line="$1"
+    URL=$(echo "$line" |grep -oE "[http:\/\/]*?[[:alnum:]]*.onion")
+#if .onion find
+    if [ ! -z "$URL" ]
+    then
+#ping .onion link
+        local message=$(usewithtor httping -t30 -c1 $URL 2> /dev/null )
+        wait
+#extract ping connection message
+        local pingOK=$(echo "$message" |grep -oE "1 connects, 1 ok")
+        if [ -z "$pingOK" ]; then
+            echo $line >> urlOffline
+            echo "$URL invalide"
+        else
+            removeErrorPages "$URL"
+        fi
+    fi
+}
+
+
+testArg "$@"
+readFileLineByLine "$@"
+
+
