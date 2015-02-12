@@ -4,10 +4,11 @@
 ##requierement
 this script is build to run in linux system only (sorry windows users) 
 you need to install the following package to make it work
-curl
-usewithtor
-httping
-
+```
+sudo apt-get install curl
+sudo apt-get install usewithtor
+sudo apt-get install httping
+```
 ##usage
 checkTorURL [input text file]
 
