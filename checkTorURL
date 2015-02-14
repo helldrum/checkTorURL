@@ -27,13 +27,14 @@ function readFileLineByLine {
 
     while  read line
     do
-        testURL "$line"
-    done < $inputFile
+        testURL "$line"&
+        wait    
+done < $inputFile
 }
 # remove error or default pages
 function removeErrorPages {
     siteAvailable=1
-    tabError=("404" "Welcome to nginx" "It works" "Alert")
+    tabError=("There is no site here!" "404" "403" "302" "Welcome to nginx" "It works" "Alert")
     local readonly URL="$1"
     local message=$(usewithtor curl -m10 $URL 2> /dev/null)
     
@@ -49,7 +50,6 @@ function removeErrorPages {
         echo "$URL invalide"
     else
         title=$(echo "$message"|sed -n 's/.*<title>\(.*\)<\/title>.*/\1/ip;T;q')
-        #local title=$( echo "$message"| grep -Eo "title[^>]*>(.*?)<\/title>") #| grep -Eo "<title>(.*?)</title>")
         echo "$URL - $title" >> urlOnline
         echo "$URL -$title valide"
     fi
