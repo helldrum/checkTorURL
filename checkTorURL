@@ -1,8 +1,8 @@
-#!/bin/bash
-
+#o!/bin/bash
+set -x
 #set -x #uncomment to unable debug mode
-
 function testArg {
+
     local readonly usage="usage : checkTorURL inputlinkFile"
     
     if [[ $# != 1 ]]
@@ -18,21 +18,29 @@ function testArg {
         echo "$usage"
          exit -1
     fi
-    
-
 }
 
-function readFileLineByLine {
-    local readonly inputFile="$1"
+function extractAndSortUnionLink {
 
-    while  read line
+    local  readonly inputFile="$1"
+    local unsortOnionLink=$(tempfile)
+    local onionLink=$(tempfile)
+    
+    grep -oE "[http:\/\/]*?[[:alnum:]]*.onion" $inputFile > $unsortOnionLink
+    
+    sort -u $unsortOnionLink >$onionLink
+    
+    while read line
     do
         testURL "$line"&
-        wait    
-done < $inputFile
+        wait
+    done < $onionLink
+    rm $unsortOnionLink $onionLink
 }
+
 # remove error or default pages
 function removeErrorPages {
+
     siteAvailable=1
     tabError=("There is no site here!" "404" "403" "302" "Welcome to nginx" "It works" "Alert")
     local readonly URL="$1"
@@ -53,20 +61,24 @@ function removeErrorPages {
         echo "$URL - $title" >> urlOnline
         echo "$URL -$title valide"
     fi
-
 }
+
 function testURL {
 #extract .onion line
     local readonly line="$1"
     URL=$(echo "$line" |grep -oE "[http:\/\/]*?[[:alnum:]]*.onion")
+
 #if .onion find
     if [ ! -z "$URL" ]
     then
+
 #ping .onion link
         local message=$(usewithtor httping -t30 -c1 $URL 2> /dev/null )
         wait
+
 #extract ping connection message
         local pingOK=$(echo "$message" |grep -oE "1 connects, 1 ok")
+
         if [ -z "$pingOK" ]; then
             echo $line >> urlOffline
             echo "$URL invalide"
@@ -76,8 +88,5 @@ function testURL {
     fi
 }
 
-
 testArg "$@"
-readFileLineByLine "$@"
-sort -u urlOnline > sortUrlOnline
-
+extractAndSortUnionLink "$@"
