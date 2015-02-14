@@ -1,11 +1,11 @@
 #o!/bin/bash
-set -x
+#set -x
 #set -x #uncomment to unable debug mode
 function testArg {
 
-    local readonly usage="usage : checkTorURL inputlinkFile"
+    local readonly usage="usage : checkTorURL [input FILE] [output FILE] \n Example: checkTorURL inputOnionFile.txt result.txt "
     
-    if [[ $# != 1 ]]
+    if [[ $# != 2 ]]
     then
         echo "ERROR : with the number of arguments"
         echo "$usage"
@@ -32,7 +32,7 @@ function extractAndSortUnionLink {
     
     while read line
     do
-        testURL "$line"&
+        testURL "$line" "$2" &
         wait
     done < $onionLink
     rm $unsortOnionLink $onionLink
@@ -40,7 +40,7 @@ function extractAndSortUnionLink {
 
 # remove error or default pages
 function removeErrorPages {
-
+    local readonly outputFile="$2"
     siteAvailable=1
     tabError=("There is no site here!" "404" "403" "302" "Welcome to nginx" "It works" "Alert")
     local readonly URL="$1"
@@ -53,12 +53,9 @@ function removeErrorPages {
         fi
     done
     
-    if [ $siteAvailable -eq 0 ]; then
-        echo $line >> urlOffline
-        echo "$URL invalide"
-    else
+    if [ $siteAvailable -eq 1 ]; then
         title=$(echo "$message"|sed -n 's/.*<title>\(.*\)<\/title>.*/\1/ip;T;q')
-        echo "$URL - $title" >> urlOnline
+        echo "$URL - $title" >> "$2"
         echo "$URL -$title valide"
     fi
 }
@@ -66,6 +63,7 @@ function removeErrorPages {
 function testURL {
 #extract .onion line
     local readonly line="$1"
+    
     URL=$(echo "$line" |grep -oE "[http:\/\/]*?[[:alnum:]]*.onion")
 
 #if .onion find
@@ -79,11 +77,8 @@ function testURL {
 #extract ping connection message
         local pingOK=$(echo "$message" |grep -oE "1 connects, 1 ok")
 
-        if [ -z "$pingOK" ]; then
-            echo $line >> urlOffline
-            echo "$URL invalide"
-        else
-            removeErrorPages "$URL"
+        if [ ! -z "$pingOK" ]; then
+            removeErrorPages "$URL" "$2"
         fi
     fi
 }

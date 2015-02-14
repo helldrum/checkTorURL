@@ -1,6 +1,8 @@
 # pingTorURL
- this bash script is use to read tor link for a file and sort valid link by ping
- the output file provide valid tor link and title of the page when it's possible
+This bash script is use to read tor link for a file and sort valid link by ping
+The output file provide valid tor link and title of the page when it's possible
+don't worry if you see anything in stdout, the script echo only if it find a valid link
+ 
 ##requierement
 this script is build to run in linux system only (sorry windows users) 
 you need to install the following package to make it work
@@ -10,7 +12,7 @@ sudo apt-get install usewithtor
 sudo apt-get install httping
 ```
 ##usage
-checkTorURL [input text file]
+checkTorURL [input FILE][output FILE]
 
 ##input file format
 
