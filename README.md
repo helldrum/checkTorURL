@@ -26,7 +26,13 @@ aaabbbcccdddeee.onion random text here http://aaabbbcccdddeee.onion  everything 
 randomtexthttp://aaabbbcccdddeee.onion  everything you want
 ```
 ##output file
-constain all the valid link tested by the script (exclude 404 error, Alert!, ngix welcome, ubuntu starter page) 
+constain all the valid link tested by the script and the title of the main page when it's possible (exclude 404 error, Alert!, ngix welcome, ubuntu starter page) 
+
+```
+Example:
+azertyuiopqsdf.onion - title link example 1
+qsdfghjkllmwxc.onion - title link example 2
+```
 
 #Disclaimer
 I'am not responsive of the usage you can do with my script and I don't provide union Link
