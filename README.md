@@ -9,10 +9,14 @@ you need to install the following package to make it work
 ```
 sudo apt-get install curl
 sudo apt-get install usewithtor
-sudo apt-get install httping
 ```
+you need to edit your /etc/tor/torrc file in order to use the sock5 through tor
+
+uncomment #ControlPort 9051
+uncomment #CookieAuthentication 1  and change it  CookieAuthentication 0
+
 ##usage
-checkTorURL [input FILE][output FILE]
+checkTorURL.sh [input FILE][output FILE]
 
 ##input file format
 
