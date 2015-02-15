@@ -12,7 +12,7 @@ function testArg {
         exit -1
     fi
     
-    if [[ ! -f $1 ]]
+    if [ ! -f $1 ]
     then
         echo "ERROR : input File $1 doesn't exist."
         echo "$usage"
@@ -39,48 +39,33 @@ function extractAndSortUnionLink {
 }
 
 # remove error or default pages
-function removeErrorPages {
+function testURL {
     local readonly outputFile="$2"
     siteAvailable=1
-    tabError=("There is no site here!" "404" "403" "302" "Welcome to nginx" "It works" "Alert")
+    tabError=( "There is no site here!" "404" "403" "302" "Welcome to nginx" "It works" "Alert")
     local readonly URL="$1"
-    local message=$(usewithtor curl -m10 $URL 2> /dev/null)
-    
-    for error in "${tabError[@]}"
-    do
-	if [ ! -z "$(echo "$message" | grep -Eo "$error" )" ]; then
-            siteAvailable=0
-        fi
-    done
-    
-    if [ $siteAvailable -eq 1 ]; then
+    local message=$(curl --connect-timeout 10 --socks5-hostname localhost:9050 "$URL" 2> /dev/null)
+     
+    if [ ! -z "$message" ]
+    then
+        for error in "${tabError[@]}"
+        do
+	    if [[  ! -z "$(echo "$message" | grep -Eo "$error" )" ]]
+            then
+                 siteAvailable=0
+            fi
+        done
+    else
+        siteAvailable=0
+    fi
+  
+    if [  $siteAvailable -eq 1 ]
+    then
         title=$(echo "$message"|sed -n 's/.*<title>\(.*\)<\/title>.*/\1/ip;T;q')
         echo "$URL - $title" >> "$2"
         echo "$URL -$title valide"
     fi
-}
 
-function testURL {
-#extract .onion line
-    local readonly line="$1"
-    
-    URL=$(echo "$line" |grep -oE "[http:\/\/]*?[[:alnum:]]*.onion")
-
-#if .onion find
-    if [ ! -z "$URL" ]
-    then
-
-#ping .onion link
-        local message=$(usewithtor httping -t30 -c1 $URL 2> /dev/null )
-        wait
-
-#extract ping connection message
-        local pingOK=$(echo "$message" |grep -oE "1 connects, 1 ok")
-
-        if [ ! -z "$pingOK" ]; then
-            removeErrorPages "$URL" "$2"
-        fi
-    fi
 }
 
 testArg "$@"
