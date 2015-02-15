@@ -28,5 +28,5 @@ randomtexthttp://aaabbbcccdddeee.onion  everything you want
 ##output file
 constain all the valid link tested by the script (exclude 404 error, Alert!, ngix welcome, ubuntu starter page) 
 
-#Disclamer
+#Disclaimer
 I'am not responsive of the usage you can do with my script and I don't provide union Link
