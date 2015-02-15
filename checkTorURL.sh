@@ -33,7 +33,11 @@ function extractAndSortUnionLink {
     while read line
     do
         testURL "$line" "$2" &
-        wait
+        NPROC=$(($NPROC+1))
+        if [ "$NPROC" -ge 4 ]; then
+            wait
+            NPROC=0
+        fi
     done < $onionLink
     rm $unsortOnionLink $onionLink
 }
