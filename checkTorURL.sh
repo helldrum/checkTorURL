@@ -1,5 +1,5 @@
 #o!/bin/bash
-#set -x
+set -x
 #set -x #uncomment to unable debug mode
 function testArg {
 
@@ -46,9 +46,9 @@ function extractAndSortUnionLink {
 function testURL {
     local readonly outputFile="$2"
     siteAvailable=1
-    tabError=( "There is no site here!" "404" "403" "302" "Welcome to nginx" "It works" "Alert")
+    tabError=("1.jpg" "502 Bad Gateway" "503 Service Unavailable" "THIS SITE HAS BEEN SEIZED" "There is no site here!" "404" "403" "302" "Welcome to nginx" "It works" "Alert")
     local readonly URL="$1"
-    local message=$(curl --connect-timeout 10 --socks5-hostname localhost:9050 "$URL" 2> /dev/null)
+    local message=$(curl --max-redirs 5 --connect-timeout 10 --socks5-hostname localhost:9050 "$URL" 2> /dev/null)
      
     if [ ! -z "$message" ]
     then
